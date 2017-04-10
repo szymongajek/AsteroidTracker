@@ -1,4 +1,4 @@
-package com.sz.rest_ws;
+package com.sz.asteroid;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
