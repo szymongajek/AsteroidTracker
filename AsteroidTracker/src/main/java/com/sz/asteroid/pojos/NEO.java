@@ -1,5 +1,5 @@
 
-package com.sz.ateroid.pojos;
+package com.sz.asteroid.pojos;
 
 import java.util.List;
 

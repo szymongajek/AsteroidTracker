@@ -1,5 +1,5 @@
 
-package com.sz.ateroid.pojos;
+package com.sz.asteroid.pojos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,27 +15,27 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class RelativeVelocity {
 
     @JsonProperty("kilometers_per_second")
-    private String kilometersPerSecond;
+    private Double kilometersPerSecond;
     @JsonProperty("kilometers_per_hour")
-    private String kilometersPerHour;
+    private Double kilometersPerHour;
 
     @JsonProperty("kilometers_per_second")
-    public String getKilometersPerSecond() {
+    public Double getKilometersPerSecond() {
         return kilometersPerSecond;
     }
 
     @JsonProperty("kilometers_per_second")
-    public void setKilometersPerSecond(String kilometersPerSecond) {
+    public void setKilometersPerSecond(Double kilometersPerSecond) {
         this.kilometersPerSecond = kilometersPerSecond;
     }
 
     @JsonProperty("kilometers_per_hour")
-    public String getKilometersPerHour() {
+    public Double getKilometersPerHour() {
         return kilometersPerHour;
     }
 
     @JsonProperty("kilometers_per_hour")
-    public void setKilometersPerHour(String kilometersPerHour) {
+    public void setKilometersPerHour(Double kilometersPerHour) {
         this.kilometersPerHour = kilometersPerHour;
     }
 
