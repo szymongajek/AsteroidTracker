@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sz.asteroid.models.dao.NeoDAO;
 import com.sz.asteroid.pojos.NEO;
+import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
 @RestController
 @RequestMapping(value = "/restNEO")
@@ -34,12 +35,12 @@ class FeedService {
 	public String fetchFeedToday() throws JsonProcessingException, IOException {
 		LOGGER.info("calling GET for /feed");
 		
-		List<NEO> resultList = AsteroidTrackerApplication.callNasaApiForNeoFeed();
+		NeoFeedSingleDateResult feedResult = AsteroidTrackerApplication.callNasaApiForNeoFeed();
 		StringBuilder sb = new StringBuilder();
-		resultList.forEach(el->sb.append(el.getName()+", "));
+		feedResult.getResultList().forEach(el->sb.append(el.getName()+", "));
 		
 		LOGGER.info("Saving following elements to DB:"+sb.toString());
-		neoDao.save(resultList);
+		neoDao.save(feedResult.getResultList());
 
 		return sb.toString();
 

@@ -11,8 +11,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sz.asteroid.pojos.NEO;
+import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +43,11 @@ public class AsteroidTrackerApplication {
 		LOGGER.info("after");
 	}
 
-	static List<NEO> callNasaApiForNeoFeed() throws IOException, JsonProcessingException {
+	static NeoFeedSingleDateResult callNasaApiForNeoFeed() throws IOException, JsonProcessingException {
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = restTemplate.getForEntity(NASA_FEED_WS_URL, String.class);
 
-		List<NEO> listOfNEOs = extractsNeosList(response);
-		
-		return listOfNEOs;
+		return extractsNeosList(response);
 	}
 
 	/**
@@ -56,7 +57,7 @@ public class AsteroidTrackerApplication {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	static List<NEO> extractsNeosList(ResponseEntity<String> response)
+	static NeoFeedSingleDateResult extractsNeosList(ResponseEntity<String> response)
 			throws IOException, JsonProcessingException {
 		
 
@@ -68,8 +69,9 @@ public class AsteroidTrackerApplication {
 		JsonNode root = jsonMapper.readTree(response.getBody());
 		ArrayList<JsonNode> tablesOfObj = new ArrayList<>();
 //		tablica obeiktow dla roznych dat - w tym przypadku jest jedna data
-		root.get(KEY_NEAR_EARTH_OBJECTS).forEach(n -> tablesOfObj.add(n));
-		ArrayNode arrnode = (ArrayNode) tablesOfObj.get(0);
+		String todayDate = root.get(KEY_NEAR_EARTH_OBJECTS).fieldNames().next();
+		
+		ArrayNode arrnode = (ArrayNode) root.get(KEY_NEAR_EARTH_OBJECTS).get(todayDate);
 
 		List<NEO> listOfNEOs = new ArrayList<>();
 		arrnode.forEach(jsonArrEl -> {
@@ -80,7 +82,10 @@ public class AsteroidTrackerApplication {
 			}
 		});
 		
+		LocalDate feedDate = LocalDate.parse(todayDate, DateTimeFormatter.ISO_LOCAL_DATE);
+		
 		listOfNEOs.forEach(n -> LOGGER.info("NEOs: " + n.toString()));
-		return listOfNEOs;
+		
+		return new NeoFeedSingleDateResult(feedDate, listOfNEOs);
 	}
 }
