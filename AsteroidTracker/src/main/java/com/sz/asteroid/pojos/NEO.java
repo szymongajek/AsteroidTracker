@@ -8,6 +8,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "links",
@@ -20,23 +32,46 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "close_approach_data"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NEO {
 
-    @JsonProperty("links")
-    private Links links;
+@Entity
+@Table(name="NEO_Repository")
+public class NEO {
+	
     @JsonProperty("neo_reference_id")
+	@Id
+	@Column(name="neo_reference_id",unique=true, length = 30)
+	@NotNull
     private String neoReferenceId;
-    @JsonProperty("name")
-    private String name;
-    @JsonProperty("nasa_jpl_url")
-    private String nasaJplUrl;
-    @JsonProperty("absolute_magnitude_h")
-    private Double absoluteMagnitudeH;
-    @JsonProperty("estimated_diameter")
-    private EstimatedDiameter estimatedDiameter;
+    
     @JsonProperty("is_potentially_hazardous_asteroid")
-    private Boolean isPotentiallyHazardousAsteroid;
+    @Column(name = "is_hazardous")
+	@NotNull
+    private Boolean isPotentiallyHazardousAsteroid=false;
+    
+    @JsonProperty("name")
+    @Column(length = 30)
+   	@NotNull
+    private String name;
+    
+    @JsonProperty("nasa_jpl_url")
+    @Column(name = "nasa_jpl_url", length = 100)
+    private String nasaJplUrl;
+    
+    @JsonProperty("absolute_magnitude_h")
+    @Column(name = "absolute_magnitude_h")
+    private Double absoluteMagnitudeH;
+    
+    @JsonProperty("links")
+    @Embedded
+    private Links links;
+    
+    @JsonProperty("estimated_diameter")
+    @Embedded
+    private EstimatedDiameter estimatedDiameter;
+   
     @JsonProperty("close_approach_data")
+    @ElementCollection
+	@CollectionTable(name = "close_approach_data_elements", joinColumns = @JoinColumn(name="neo_reference_id"))
     private List<CloseApproachDatum> closeApproachData = null;
 
     @JsonProperty("links")

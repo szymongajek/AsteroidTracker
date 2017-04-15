@@ -1,6 +1,9 @@
 
 package com.sz.asteroid.pojos;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,9 +14,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "self"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Embeddable
 public class Links {
 
     @JsonProperty("self")
+    @Column(name = "selfLink", length = 100)
     private String selfLink;
 
     @JsonProperty("self")

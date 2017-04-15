@@ -19,6 +19,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Asteroid tracker is a spring boot application, storing information about Near Earth Objects obtained using NASA REST service for 
+ * https://api.nasa.gov/api.html#NeoWS
+ * @author sz
+ *
+ */
 @SpringBootApplication
 public class AsteroidTrackerApplication {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AsteroidTrackerApplication.class);

@@ -1,6 +1,8 @@
 
 package com.sz.asteroid.pojos;
 
+import javax.persistence.Embeddable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kilometers"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Embeddable
 public class MissDistance {
 
     @JsonProperty("astronomical")

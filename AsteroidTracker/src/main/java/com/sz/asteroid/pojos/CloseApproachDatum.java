@@ -4,6 +4,10 @@ package com.sz.asteroid.pojos;
 import java.time.LocalDate;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -20,6 +24,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
     "miss_distance",
     "orbiting_body"
 })
+@Embeddable
 public class CloseApproachDatum {
 
 
@@ -29,14 +34,23 @@ public class CloseApproachDatum {
 	/*
 	 * indicate to this field date deserializer
 	 */
+	@Column(name = "close_approach_date")
     private LocalDate closeApproachDate;
+	
     @JsonProperty("epoch_date_close_approach")
+    @Column(name = "epoch_date_close_approach")
     private Long epochDateCloseApproach;
+    
     @JsonProperty("relative_velocity")
+    @Embedded
     private RelativeVelocity relativeVelocity;
+    
     @JsonProperty("miss_distance")
+    @Embedded
     private MissDistance missDistance;
+    
     @JsonProperty("orbiting_body")
+    @Column(name = "orbiting_body", length=50)
     private String orbitingBody;
 
     @JsonProperty("close_approach_date")

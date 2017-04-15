@@ -1,6 +1,9 @@
 
 package com.sz.asteroid.pojos;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,11 +15,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kilometers_per_hour"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Embeddable
 public class RelativeVelocity {
 
     @JsonProperty("kilometers_per_second")
+    @Column(name="kilometers_per_second")
     private Double kilometersPerSecond;
+    
     @JsonProperty("kilometers_per_hour")
+    @Column(name="kilometers_per_hour")
     private Double kilometersPerHour;
 
     @JsonProperty("kilometers_per_second")

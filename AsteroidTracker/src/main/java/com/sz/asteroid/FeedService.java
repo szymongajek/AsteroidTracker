@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,12 +18,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sz.asteroid.models.dao.NeoDAO;
 import com.sz.asteroid.pojos.NEO;
 
 @RestController
 @RequestMapping(value = "/restNEO")
 class FeedService {
 
+	@Autowired
+	NeoDAO neoDao;
 	
 	private static Logger LOGGER = LogManager.getLogger(FeedService.class);
 	
@@ -30,8 +34,12 @@ class FeedService {
 	public String fetchFeedToday() throws JsonProcessingException, IOException {
 		LOGGER.info("calling GET for /feed");
 		
+		List<NEO> resultList = AsteroidTrackerApplication.callNasaApiForNeoFeed();
 		StringBuilder sb = new StringBuilder();
-		AsteroidTrackerApplication.callNasaApiForNeoFeed().forEach(el->sb.append(el.getName()+", "));
+		resultList.forEach(el->sb.append(el.getName()+", "));
+		
+		LOGGER.info("Saving following elements to DB:"+sb.toString());
+		neoDao.save(resultList);
 
 		return sb.toString();
 
