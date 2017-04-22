@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -74,7 +75,10 @@ public class NEO {
 	@CollectionTable(name = "close_approach_data_elements", joinColumns = @JoinColumn(name="neo_reference_id"))
     private List<CloseApproachDatum> closeApproachData = null;
 
-    @JsonProperty("links")
+    @ManyToOne
+    private NeoFeedSingleDateResult sourceFeed;
+    
+	@JsonProperty("links")
     public Links getLinks() {
         return links;
     }
@@ -153,5 +157,11 @@ public class NEO {
     public void setCloseApproachData(List<CloseApproachDatum> closeApproachData) {
         this.closeApproachData = closeApproachData;
     }
+    public NeoFeedSingleDateResult getSourceFeed() {
+		return sourceFeed;
+	}
 
+	public void setSourceFeed(NeoFeedSingleDateResult sourceFeed) {
+		this.sourceFeed = sourceFeed;
+	}
 }

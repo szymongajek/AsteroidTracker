@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sz.asteroid.models.dao.NeoDAO;
+import com.sz.asteroid.models.dao.NeoFeedDAO;
 import com.sz.asteroid.pojos.NEO;
 import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
@@ -28,6 +29,9 @@ class FeedService {
 
 	@Autowired
 	NeoDAO neoDao;
+	
+	@Autowired
+	NeoFeedDAO feedDao;
 	
 	private static Logger LOGGER = LogManager.getLogger(FeedService.class);
 	
@@ -39,9 +43,11 @@ class FeedService {
 		StringBuilder sb = new StringBuilder();
 		feedResult.getResultList().forEach(el->sb.append(el.getName()+", "));
 		
+		LOGGER.info("saving feed for"+feedResult.getFeedDate());
 		LOGGER.info("Saving following elements to DB:"+sb.toString());
-		neoDao.save(feedResult.getResultList());
-
+//		neoDao.save(feedResult.getResultList());
+		
+		feedDao.save(feedResult);
 		return sb.toString();
 
 	}
