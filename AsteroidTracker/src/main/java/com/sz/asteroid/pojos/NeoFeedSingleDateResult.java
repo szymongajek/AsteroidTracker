@@ -53,4 +53,13 @@ public class NeoFeedSingleDateResult {
 		this.resultList = resultList;
 	}
 
+	
+
+	public Integer getFetchId() {
+		return fetchId;
+	}
+
+	public void setFetchId(Integer fetchId) {
+		this.fetchId = fetchId;
+	}
 }
