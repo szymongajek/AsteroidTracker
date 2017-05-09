@@ -28,27 +28,16 @@ import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 class FeedService {
 
 	@Autowired
-	NeoDAO neoDao;
-	
-	@Autowired
-	NeoFeedDAO feedDao;
+	FeedProcessor processor;
 	
 	private static Logger LOGGER = LogManager.getLogger(FeedService.class);
 	
 	@RequestMapping(value = "/feed")
 	public String fetchFeedToday() throws JsonProcessingException, IOException {
 		LOGGER.info("calling GET for /feed");
-		
-		NeoFeedSingleDateResult feedResult = AsteroidTrackerApplication.callNasaApiForNeoFeed();
-		StringBuilder sb = new StringBuilder();
-		feedResult.getResultList().forEach(el->sb.append(el.getName()+", "));
-		
-		LOGGER.info("saving feed for"+feedResult.getFeedDate());
-		LOGGER.info("Saving following elements to DB:"+sb.toString());
-//		neoDao.save(feedResult.getResultList());
-		
-		feedDao.save(feedResult);
-		return sb.toString();
+		String result = processor.processFeed();
+	 
+		return result;
 
 	}
 

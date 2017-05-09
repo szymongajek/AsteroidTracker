@@ -46,7 +46,7 @@ public class PersistenceTests {
 		ResponseEntity<String> response = Mockito.mock(ResponseEntity.class);
 		Mockito.when(response.getBody()).thenReturn(content);
 		 
-		NeoFeedSingleDateResult neoResult = AsteroidTrackerApplication.extractsNeosList(response);
+		NeoFeedSingleDateResult neoResult = FeedProcessor.extractsNeosList(response);
 
 		feedDAO.save(neoResult);
 
