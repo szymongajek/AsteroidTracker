@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SpringBootApplication
-//@EnableScheduling
+@EnableScheduling
 public class AsteroidTrackerApplication {
 	static final Logger LOGGER = LoggerFactory.getLogger(AsteroidTrackerApplication.class);
 

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,7 +25,7 @@ import com.sz.asteroid.models.dao.NeoFeedDAO;
 import com.sz.asteroid.pojos.NEO;
 import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
- @Component
+@Component
 public class FeedProcessor {
 	static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
 
@@ -33,6 +34,14 @@ public class FeedProcessor {
 
 	@Autowired
 	NeoFeedDAO feedDao;
+	
+	@Scheduled(cron = "0 30 10 * * *")
+	public void processFeed_scheduled() {
+		LOGGER.info("Starting scheduled job");
+//		processFeed();
+		LOGGER.info("scheduled job done...");
+	}
+	
 	public String processFeed() {
 		NeoFeedSingleDateResult feedResult;
 		try {

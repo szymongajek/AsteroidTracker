@@ -1,1 +1,3 @@
 testy zapisu do bazy
+
+zapis neo - jesli juz jest w bazie nie zapisuj(kluczem jest id wiec poleci blad), tylko??
