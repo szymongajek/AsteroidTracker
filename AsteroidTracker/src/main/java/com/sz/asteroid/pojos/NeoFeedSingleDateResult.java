@@ -32,6 +32,8 @@ public class NeoFeedSingleDateResult {
 					@JoinColumn(name = "fn_neo_reference_id", referencedColumnName = "neo_reference_id") })
 	List<NEO> resultList;
 
+	public NeoFeedSingleDateResult( ) { }
+	
 	public NeoFeedSingleDateResult(LocalDate feedDate, List<NEO> resultList) {
 		this.feedDate = feedDate;
 		this.resultList = resultList;

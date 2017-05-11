@@ -23,8 +23,11 @@ import org.slf4j.LoggerFactory;
 public class AsteroidTrackerApplication {
 	static final Logger LOGGER = LoggerFactory.getLogger(AsteroidTrackerApplication.class);
 
-	static final String NASA_FEED_WS_URL = "https://api.nasa.gov/neo/rest/v1/feed/today?detailed=false&api_key=DEMO_KEY";;
-	static final String KEY_NEAR_EARTH_OBJECTS = "near_earth_objects";
+	public static final String NASA_FEED_WS_URL = "https://api.nasa.gov/neo/rest/v1/feed/today?detailed=false&api_key=DEMO_KEY";
+	public static final String NASA_FEED_WS_MULTIDATES_URL = "https://api.nasa.gov/neo/rest/v1/feed?start_date=___START_DATE___&end_date=___END_DATE___&detailed=true&api_key=DEMO_KEY";
+	public static final String MULTIDATES_URL_KEY_START = "___START_DATE___";
+	public static final String MULTIDATES_URL_KEY_END = "___END_DATE___";
+	public static final String KEY_NEAR_EARTH_OBJECTS = "near_earth_objects";
 	
 	public static void main(String[] args) {
 		LOGGER.info("before");

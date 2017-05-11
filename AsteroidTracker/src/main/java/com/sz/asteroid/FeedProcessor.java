@@ -3,49 +3,94 @@ package com.sz.asteroid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
+import org.assertj.core.internal.DoubleArrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sz.asteroid.models.dao.NeoDAO;
 import com.sz.asteroid.models.dao.NeoFeedDAO;
-import com.sz.asteroid.pojos.NEO;
 import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
-@Component
-public class FeedProcessor {
-	static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
+@Component 
+public class FeedProcessor   {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
 
 	@Autowired
 	NeoDAO neoDao;
 
 	@Autowired
-	NeoFeedDAO feedDao;
-	
+	public NeoFeedDAO feedDao;
+
+	/**
+	 * scheduled task for feed downloading. 
+	 * everyday at 10:30
+	 */
 	@Scheduled(cron = "0 30 10 * * *")
 	public void processFeed_scheduled() {
 		LOGGER.info("Starting scheduled job");
-//		processFeed();
+		updateMissingFeeds(FeedProcessor.getLastFeedDate(),new RestTemplate());
+		processFeed(new RestTemplate());
 		LOGGER.info("scheduled job done...");
 	}
+
+	private static  LocalDate getLastFeedDate( ) {//TODO 
+		return null;
+	}
 	
-	public String processFeed() {
+	public String updateMissingFeeds(LocalDate lastFeed, RestTemplate restTemplate) {
+		
+		long missingDays = java.time.temporal.ChronoUnit.DAYS.between(lastFeed, LocalDate.now());
+		
+		if(missingDays>1){
+			LocalDate requestEnd = LocalDate.now().minusDays(1);
+			LocalDate requestStart = calcStartDateForMissing(LocalDate.now(), lastFeed);
+			LOGGER.info("Processing missing feeds for range:"+requestStart+">>"+requestEnd);
+			
+			List<NeoFeedSingleDateResult> resultList;
+			try {
+				String url = prepareMultiDatesURL(requestStart, requestEnd);
+				resultList = FeedParserJSON.extractMultiDateNeosList( restTemplate.getForEntity(url,String.class));;
+			}catch (IOException e) {
+				LOGGER.error("feed processing error",e);
+				return null;
+			}
+			
+			StringBuilder sb = new StringBuilder();
+			resultList.forEach(el -> sb.append(el.getFeedDate() + ": "+el.getResultList().size()+ ", "));
+
+			LOGGER.info("Saving elements for following dates to DB:" + sb.toString());
+			feedDao.save(resultList);
+			
+			return sb.toString();
+			
+		}else{
+			LOGGER.info("No missing feeds detected");
+			return null;
+		}
+		
+	}
+
+	static LocalDate calcStartDateForMissing(LocalDate currentDate, LocalDate lastFeed) {
+		long missingDays = java.time.temporal.ChronoUnit.DAYS.between(lastFeed, currentDate);
+		return (missingDays<=8)? lastFeed.plusDays(1) : currentDate.minusDays(7);
+	}
+	
+	public String processFeed( RestTemplate restTemplate) {
+		LOGGER.info("Processing today feed");
+		
 		NeoFeedSingleDateResult feedResult;
 		try {
-			feedResult = FeedProcessor.callNasaApiForNeoFeed();
+			feedResult =FeedParserJSON.extractSingleDateNeosList(restTemplate.getForEntity(AsteroidTrackerApplication.NASA_FEED_WS_URL,
+					String.class));
 		}catch (IOException e) {
 			LOGGER.error("feed processing error",e);
 			return null;
@@ -56,56 +101,16 @@ public class FeedProcessor {
 
 		LOGGER.info("saving feed for" + feedResult.getFeedDate());
 		LOGGER.info("Saving following elements to DB:" + sb.toString());
-		// neoDao.save(feedResult.getResultList());
 
 		feedDao.save(feedResult);
 		return sb.toString();
 	}
 
-	static NeoFeedSingleDateResult callNasaApiForNeoFeed() throws IOException, JsonProcessingException {
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<String> response = restTemplate.getForEntity(AsteroidTrackerApplication.NASA_FEED_WS_URL,
-				String.class);
+	
+	static String prepareMultiDatesURL( LocalDate startDate, LocalDate endDate) {
 
-		return FeedProcessor.extractsNeosList(response);
-	}
-
-	/**
-	 * parsowanie opdpowiedzi zeby dostac liste NEOs
-	 * 
-	 * @param response
-	 * @return
-	 * @throws IOException
-	 * @throws JsonProcessingException
-	 */
-	static NeoFeedSingleDateResult extractsNeosList(ResponseEntity<String> response)
-			throws IOException, JsonProcessingException {
-
-		ObjectMapper jsonMapper = new ObjectMapper();
-		// jackson-datatype-jsr310 dodany w dep. + rejestracja tutaj w celu
-		// serializacji/deserializacji do java 8 date api
-		jsonMapper.registerModule(new JavaTimeModule());
-
-		JsonNode root = jsonMapper.readTree(response.getBody());
-		ArrayList<JsonNode> tablesOfObj = new ArrayList<>();
-		// tablica obeiktow dla roznych dat - w tym przypadku jest jedna data
-		String todayDate = root.get(AsteroidTrackerApplication.KEY_NEAR_EARTH_OBJECTS).fieldNames().next();
-
-		ArrayNode arrnode = (ArrayNode) root.get(AsteroidTrackerApplication.KEY_NEAR_EARTH_OBJECTS).get(todayDate);
-
-		List<NEO> listOfNEOs = new ArrayList<>();
-		arrnode.forEach(jsonArrEl -> {
-			try {
-				listOfNEOs.add(jsonMapper.treeToValue(jsonArrEl, NEO.class));
-			} catch (JsonProcessingException e) {
-				AsteroidTrackerApplication.LOGGER.error("blad podczas tworzenia obiektu NEO:" + jsonArrEl, e);
-			}
-		});
-
-		LocalDate feedDate = LocalDate.parse(todayDate, DateTimeFormatter.ISO_LOCAL_DATE);
-
-		listOfNEOs.forEach(n -> AsteroidTrackerApplication.LOGGER.info("NEOs: " + n.toString()));
-
-		return new NeoFeedSingleDateResult(feedDate, listOfNEOs);
+		return AsteroidTrackerApplication.NASA_FEED_WS_MULTIDATES_URL
+				.replaceFirst(AsteroidTrackerApplication.MULTIDATES_URL_KEY_START, DateTimeFormatter.ISO_LOCAL_DATE.format(startDate)  )
+				.replaceFirst(AsteroidTrackerApplication.MULTIDATES_URL_KEY_END, DateTimeFormatter.ISO_LOCAL_DATE.format(endDate)  );
 	}
 }

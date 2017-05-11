@@ -12,16 +12,21 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sz.asteroid.pojos.NEO;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AsteroidTrackerApplicationTests {
+
+@Transactional
+@AutoConfigureTestDatabase
+public class FeedExtraction_SingleDateTests {
 
 
 	@Test
@@ -37,7 +42,7 @@ public class AsteroidTrackerApplicationTests {
 		ResponseEntity<String> response = Mockito.mock(ResponseEntity.class);
 		Mockito.when(response.getBody()).thenReturn(content);
 		 
-		List<NEO> neosList = FeedProcessor.extractsNeosList(response).getResultList();
+		List<NEO> neosList = FeedParserJSON.extractSingleDateNeosList(response).getResultList();
 		assertThat(neosList).hasSize(7);
 		
 	} 
@@ -50,7 +55,7 @@ public class AsteroidTrackerApplicationTests {
 		ResponseEntity<String> response = Mockito.mock(ResponseEntity.class);
 		Mockito.when(response.getBody()).thenReturn(content);
 		 
-		LocalDate date = FeedProcessor.extractsNeosList(response).getFeedDate();
+		LocalDate date = FeedParserJSON.extractSingleDateNeosList(response).getFeedDate();
 		assertThat(date).isEqualTo(LocalDate.parse("2017-04-06"));
 		
 	} 
@@ -63,7 +68,7 @@ public class AsteroidTrackerApplicationTests {
 		ResponseEntity<String> response = Mockito.mock(ResponseEntity.class);
 		Mockito.when(response.getBody()).thenReturn(content);
 		 
-		List<NEO> neosList = FeedProcessor.extractsNeosList(response).getResultList();
+		List<NEO> neosList = FeedParserJSON.extractSingleDateNeosList(response).getResultList();
 		NEO tested = neosList.stream().filter(neo->neo.getName().equals("(2014 KB46)")).findAny().get();
 		
 		assertThat(tested.getName()).isEqualTo("(2014 KB46)");
@@ -81,7 +86,7 @@ public class AsteroidTrackerApplicationTests {
 		ResponseEntity<String> response = Mockito.mock(ResponseEntity.class);
 		Mockito.when(response.getBody()).thenReturn(content);
 		 
-		List<NEO> neosList = FeedProcessor.extractsNeosList(response).getResultList();
+		List<NEO> neosList = FeedParserJSON.extractSingleDateNeosList(response).getResultList();
 		NEO tested = neosList.stream().filter(neo->neo.getName().equals("(2014 KB46)")).findAny().get();
 		
 		assertThat(tested.getEstimatedDiameter().getMeters().getMinDiameter()).isEqualTo(29.1443904535d);

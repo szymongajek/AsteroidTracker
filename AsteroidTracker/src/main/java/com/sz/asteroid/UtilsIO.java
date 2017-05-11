@@ -6,7 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class UtilsIO {
-
+	
+	
 	/**
 	 * Return string content of src main resources file
 	 * 

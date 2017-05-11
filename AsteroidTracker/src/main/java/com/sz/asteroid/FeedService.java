@@ -18,14 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.sz.asteroid.models.dao.NeoDAO;
-import com.sz.asteroid.models.dao.NeoFeedDAO;
 import com.sz.asteroid.pojos.NEO;
 import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
 @RestController
 @RequestMapping(value = "/restNEO")
-class FeedService {
+public class FeedService {
 
 	@Autowired
 	FeedProcessor processor;
@@ -35,7 +33,7 @@ class FeedService {
 	@RequestMapping(value = "/feed")
 	public String fetchFeedToday() throws JsonProcessingException, IOException {
 		LOGGER.info("calling GET for /feed");
-		String result = processor.processFeed();
+		String result = processor.processFeed(new RestTemplate());
 	 
 		return result;
 
