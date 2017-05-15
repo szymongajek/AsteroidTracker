@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.assertj.core.internal.DoubleArrays;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sz.asteroid.models.dao.NeoDAO;
 import com.sz.asteroid.models.dao.NeoFeedDAO;
+import com.sz.asteroid.pojos.NEO;
 import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 
 @Component 
@@ -37,22 +42,37 @@ public class FeedProcessor   {
 	@Scheduled(cron = "0 30 10 * * *")
 	public void processFeed_scheduled() {
 		LOGGER.info("Starting scheduled job");
-		updateMissingFeeds(FeedProcessor.getLastFeedDate(),new RestTemplate());
+		updateMissingFeeds(getLastFeedDate(),LocalDate.now(),new RestTemplate());
 		processFeed(new RestTemplate());
 		LOGGER.info("scheduled job done...");
 	}
 
-	private static  LocalDate getLastFeedDate( ) {//TODO 
-		return null;
+	private  LocalDate getLastFeedDate( ) { 
+		LOGGER.info("getLastFeedDate"+feedDao.getLastFeedDate());
+		return feedDao.getLastFeedDate();
+		
+		
+//		 String sqlQuery="select e from Employee e inner join e.addList";
+//		 EntityManager em = new JPAUtil().getEntityManager();
+//		 Session session = em.unwrap(Session.class);
+//
+//		    Session session=HibernateUtil.getSessionFactory().openSession();
+//
+//		    Query query=session.createQuery(sqlQuery);
+//
+//		    List<Employee> list=query.list();
+//
+//		     list.stream().forEach((p)->{System.out.println(p.getEmpName());});     
+//		    session.close();
 	}
 	
-	public String updateMissingFeeds(LocalDate lastFeed, RestTemplate restTemplate) {
+	public String updateMissingFeeds(LocalDate fromDate,LocalDate toDate, RestTemplate restTemplate) {
 		
-		long missingDays = java.time.temporal.ChronoUnit.DAYS.between(lastFeed, LocalDate.now());
+		long missingDays = java.time.temporal.ChronoUnit.DAYS.between(fromDate, toDate);
 		
 		if(missingDays>1){
 			LocalDate requestEnd = LocalDate.now().minusDays(1);
-			LocalDate requestStart = calcStartDateForMissing(LocalDate.now(), lastFeed);
+			LocalDate requestStart = calcStartDateForMissing(LocalDate.now(), fromDate);
 			LOGGER.info("Processing missing feeds for range:"+requestStart+">>"+requestEnd);
 			
 			List<NeoFeedSingleDateResult> resultList;

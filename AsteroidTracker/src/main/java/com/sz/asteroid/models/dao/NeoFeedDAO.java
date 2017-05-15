@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,7 @@ import com.sz.asteroid.pojos.NeoFeedSingleDateResult;
 public interface NeoFeedDAO extends CrudRepository<NeoFeedSingleDateResult, Integer>{
 	
 	public NeoFeedSingleDateResult findByFeedDate(LocalDate feedDate);
+	
+	@Query("SELECT max(feedDate) FROM NeoFeedSingleDateResult")
+	public LocalDate getLastFeedDate();
 }

@@ -58,11 +58,11 @@ public class PersistenceTests {
 		Mockito.when(template.getForEntity(any(String.class),
 				any(Class.class))).thenReturn(response);
 
-		feedProc.updateMissingFeeds(LocalDate.of(2016, 1, 1), template);
+		feedProc.updateMissingFeeds(LocalDate.of(2015, 1, 1),LocalDate.of(2016, 1, 1), template);
 
 	}
 	@Test
-	public void neoListSaved() throws IOException {
+	public void isNeoMultidateListSaved() throws IOException {
 		
 		assertThat(neoDAO.findByName("(2004 VA1)").getNeoReferenceId()).isEqualTo("3261402");
 		assertThat(neoDAO.findAll()).hasSize(36);
@@ -76,16 +76,39 @@ public class PersistenceTests {
 
 		assertThat(feed2).isNotNull();
 		assertThat(feed2.getResultList()).hasSize(12);
+		
+	}
+	
+	@Test
+	public void updatemissingDatesIsNotCalledIfNoMissingDays() throws IOException {
 
+		String result = feedProc.updateMissingFeeds(LocalDate.of(2016, 1, 1), LocalDate.of(2016, 1, 1), null);
+		
+		assertThat(result).isNull();
+		
+		String result2 = feedProc.updateMissingFeeds(LocalDate.of(2016, 1, 2), LocalDate.of(2016, 1, 1), null);
+		
+		assertThat(result2).isNull();
 		
 	}
 
-	
 	@Test
-	public void neoListOps() throws IOException {
+	public void testLastFeedDate() throws IOException {
 		
+		
+		assertThat(feedDAO.getLastFeedDate()).isEqualTo(LocalDate.of(2015, 5, 1));
+		NeoFeedSingleDateResult feed2 = feedDAO.findByFeedDate(LocalDate.of(2015, 5, 1));
+
+		feedDAO.delete(feed2);
+		
+		assertThat(feedDAO.getLastFeedDate()).isEqualTo(LocalDate.of(2015, 4, 30));
 	 
 
+		feedDAO.deleteAll();
+		
+		LocalDate lastFeedDate = feedDAO.getLastFeedDate();
+		assertThat(lastFeedDate).isNull();
+		
 	}
 
 
